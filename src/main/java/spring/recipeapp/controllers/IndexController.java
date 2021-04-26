@@ -24,4 +24,6 @@ public class IndexController {
         log.debug("I`m index controller");
         return "index";
     }
+
+
 }
