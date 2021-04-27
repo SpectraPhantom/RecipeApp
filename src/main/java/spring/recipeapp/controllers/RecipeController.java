@@ -7,7 +7,6 @@ import spring.recipeapp.commands.RecipeCommand;
 import spring.recipeapp.services.RecipeService;
 
 @Controller
-@RequestMapping
 public class RecipeController {
 
     private final RecipeService recipeService;

@@ -13,7 +13,6 @@ import spring.recipeapp.services.UnitOfMeasureService;
 
 @Controller
 @Slf4j
-@RequestMapping
 public class IngredientController {
 
     private final RecipeService recipeService;
