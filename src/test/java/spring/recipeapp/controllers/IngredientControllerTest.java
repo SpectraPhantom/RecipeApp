@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import spring.recipeapp.commands.RecipeCommand;
 import spring.recipeapp.services.IngredientService;
 import spring.recipeapp.services.RecipeService;
+import spring.recipeapp.services.UnitOfMeasureService;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -23,6 +24,9 @@ class IngredientControllerTest {
     @Mock
     IngredientService ingredientService;
 
+    @Mock
+    UnitOfMeasureService unitOfMeasureService;
+
     IngredientController controller;
 
     MockMvc mockMvc;
@@ -31,7 +35,7 @@ class IngredientControllerTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        controller=new IngredientController(recipeService, ingredientService);
+        controller=new IngredientController(recipeService, ingredientService, unitOfMeasureService);
         mockMvc= MockMvcBuilders.standaloneSetup(controller).build();
     }
 
