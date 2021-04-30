@@ -1,5 +1,6 @@
 package spring.recipeapp.controllers;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +12,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import spring.recipeapp.commands.RecipeCommand;
 import spring.recipeapp.domain.Recipe;
+import spring.recipeapp.exceptions.NotFoundException;
 import spring.recipeapp.services.RecipeService;
 
+
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -94,5 +98,21 @@ class RecipeControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/index"));
 
+    }
+
+    @Test
+    void findRecipeByIdNotFound() throws Exception {
+      when((recipeService.findById(anyLong()))).thenThrow(NotFoundException.class);
+      mockMvc.perform(get("/recipe/1/show"))
+              .andExpect(status().isNotFound())
+              .andExpect(view().name("404error"));
+    }
+
+    @Test
+    void findRecipeByIdNumberFormatException() throws Exception{
+
+        mockMvc.perform(get("/recipe/ssada/show"))
+                .andExpect(status().isBadRequest())
+                .andExpect(view().name("400error"));
     }
 }

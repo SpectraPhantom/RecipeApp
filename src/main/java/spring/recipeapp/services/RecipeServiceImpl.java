@@ -7,6 +7,7 @@ import spring.recipeapp.commands.RecipeCommand;
 import spring.recipeapp.converters.RecipeCommandToRecipe;
 import spring.recipeapp.converters.RecipeToRecipeCommand;
 import spring.recipeapp.domain.Recipe;
+import spring.recipeapp.exceptions.NotFoundException;
 import spring.recipeapp.repositories.RecipeRepository;
 
 import java.util.HashSet;
@@ -38,7 +39,10 @@ public class RecipeServiceImpl implements RecipeService {
     public Recipe findById(Long id) {
         Optional<Recipe> recipeOptional=recipeRepository.findById(id);
         if (recipeOptional.isEmpty()){
-            throw new RuntimeException("Recipe not found!");
+            throw new NotFoundException("Recipe not found! For ID value: "+ id);
+        }
+        if(id.getClass().equals(String.class)){
+            throw new NumberFormatException("Recipe ID should be in number format!");
         }
         return recipeOptional.get();
     }
