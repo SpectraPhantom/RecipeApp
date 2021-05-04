@@ -43,13 +43,13 @@ class IngredientControllerTest {
     void listIngredients() throws Exception{
         RecipeCommand recipeCommand=new RecipeCommand();
 
-        when(recipeService.findCommandById(anyLong())).thenReturn(recipeCommand);
+        when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
 
         mockMvc.perform(get("/recipe/1/ingredients"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("/recipe/ingredient/list"))
                 .andExpect(model().attributeExists("recipe"));
 
-        verify(recipeService,times(1)).findCommandById(anyLong());
+        verify(recipeService,times(1)).findCommandById(anyString());
     }
 }

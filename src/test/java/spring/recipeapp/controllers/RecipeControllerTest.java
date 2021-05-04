@@ -16,8 +16,7 @@ import spring.recipeapp.exceptions.NotFoundException;
 import spring.recipeapp.services.RecipeService;
 
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -43,8 +42,8 @@ class RecipeControllerTest {
     @Test
     void showById() throws Exception{
      Recipe recipe=new Recipe();
-     recipe.setId(1L);
-     when(recipeService.findById(anyLong())).thenReturn(recipe);
+     recipe.setId("1");
+     when(recipeService.findById(anyString())).thenReturn(recipe);
 
      mockMvc.perform(get("/recipe/1/show"))
              .andExpect(status().isOk())
@@ -62,9 +61,9 @@ class RecipeControllerTest {
     @Test
     void getUpdateView() throws Exception {
         RecipeCommand recipeCommand=new RecipeCommand();
-        recipeCommand.setId(1L);
+        recipeCommand.setId("1");
 
-        when(recipeService.findCommandById(anyLong())).thenReturn(recipeCommand);
+        when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
 
         mockMvc.perform(get("/recipe/1/update"))
                 .andExpect(status().isOk())
@@ -75,7 +74,7 @@ class RecipeControllerTest {
     @Test
     void saveOrUpdatePostMappingTest() throws Exception {
         RecipeCommand command=new RecipeCommand();
-        command.setId(2L);
+        command.setId("2");
 
         when(recipeService.saveRecipeCommand(any())).thenReturn(command);
 
@@ -100,17 +99,10 @@ class RecipeControllerTest {
 
     @Test
     void findRecipeByIdNotFound() throws Exception {
-      when((recipeService.findById(anyLong()))).thenThrow(NotFoundException.class);
+      when((recipeService.findById(anyString()))).thenThrow(NotFoundException.class);
       mockMvc.perform(get("/recipe/1/show"))
               .andExpect(status().isNotFound())
               .andExpect(view().name("404error"));
     }
 
-    @Test
-    void findRecipeByIdNumberFormatException() throws Exception{
-
-        mockMvc.perform(get("/recipe/ssada/show"))
-                .andExpect(status().isBadRequest())
-                .andExpect(view().name("400error"));
-    }
 }
