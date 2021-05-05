@@ -4,12 +4,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import spring.recipeapp.converters.RecipeCommandToRecipe;
 import spring.recipeapp.converters.RecipeToRecipeCommand;
 import spring.recipeapp.domain.Recipe;
 import spring.recipeapp.repositories.RecipeRepository;
+import spring.recipeapp.repositories.reactive.RecipeReactiveRepository;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,7 +26,7 @@ class RecipeServiceImplTest {
 
 
     @Mock
-    RecipeRepository recipeRepository;
+    RecipeReactiveRepository recipeReactiveRepository;
 
     @Mock
     RecipeCommandToRecipe recipeConverter;
@@ -34,38 +38,37 @@ class RecipeServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        recipeService=new RecipeServiceImpl(recipeRepository, recipeConverter, recipeToRecipeCommand);
+        recipeService=new RecipeServiceImpl(recipeReactiveRepository, recipeConverter, recipeToRecipeCommand);
 
     }
 
     @Test
     void getRecipes() {
-        Recipe recipe=new Recipe();
-        HashSet recipeData=new HashSet();
-        recipeData.add(recipe);
+        Recipe recipe = new Recipe();
+        HashSet receipesData = new HashSet();
+        receipesData.add(recipe);
 
-        when(recipeRepository.findAll()).thenReturn(recipeData);
-        Set<Recipe> recipes=recipeService.getRecipes();
-        assertEquals(recipes.size(),1);
+        when(recipeService.getRecipes()).thenReturn(Flux.just(recipe));
 
-        verify(recipeRepository,times(1)).findAll();
+        List<Recipe> recipes = recipeService.getRecipes().collectList().block();
+
+        assertEquals(recipes.size(), 1);
+        verify(recipeReactiveRepository, times(1)).findAll();
+        verify(recipeReactiveRepository, never()).findById(anyString());
     }
 
     @Test
     void getRecipeById() {
-        Recipe recipe=new Recipe();
+        Recipe recipe = new Recipe();
         recipe.setId("1");
 
-        Optional<Recipe> recipeOptional=Optional.of(recipe);
+        when(recipeReactiveRepository.findById(anyString())).thenReturn(Mono.just(recipe));
 
-        when(recipeRepository.findById(anyString())).thenReturn(recipeOptional);
-
-        Recipe recipeReturned=recipeService.findById("1");
+        Recipe recipeReturned = recipeService.findById("1").block();
 
         assertNotNull(recipeReturned);
-
-        verify(recipeRepository,times(1)).findById(anyString());
-        verify(recipeRepository,never()).findAll();
+        verify(recipeReactiveRepository, times(1)).findById(anyString());
+        verify(recipeReactiveRepository, never()).findAll();
 
     }
 }

@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import reactor.core.publisher.Mono;
 import spring.recipeapp.commands.RecipeCommand;
 import spring.recipeapp.domain.Recipe;
 import spring.recipeapp.exceptions.NotFoundException;
@@ -17,7 +18,7 @@ import spring.recipeapp.services.RecipeService;
 
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -43,7 +44,7 @@ class RecipeControllerTest {
     void showById() throws Exception{
      Recipe recipe=new Recipe();
      recipe.setId("1");
-     when(recipeService.findById(anyString())).thenReturn(recipe);
+     when(recipeService.findById(anyString())).thenReturn(Mono.just(recipe));
 
      mockMvc.perform(get("/recipe/1/show"))
              .andExpect(status().isOk())
@@ -63,7 +64,7 @@ class RecipeControllerTest {
         RecipeCommand recipeCommand=new RecipeCommand();
         recipeCommand.setId("1");
 
-        when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
+        when(recipeService.findCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
 
         mockMvc.perform(get("/recipe/1/update"))
                 .andExpect(status().isOk())
@@ -76,7 +77,7 @@ class RecipeControllerTest {
         RecipeCommand command=new RecipeCommand();
         command.setId("2");
 
-        when(recipeService.saveRecipeCommand(any())).thenReturn(command);
+        when(recipeService.saveRecipeCommand(any())).thenReturn(Mono.just(command));
 
         mockMvc.perform(post("/recipe")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -91,9 +92,13 @@ class RecipeControllerTest {
     @Test
     void deleteRecipeByIdTest() throws Exception{
 
-        mockMvc.perform(get("/recipe/1/delete"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/index"));
+        String idToDelete="2";
+
+        when(recipeService.deleteById(anyString())).thenReturn(Mono.empty());
+
+        recipeService.deleteById(idToDelete);
+
+        verify(recipeService,times(1)).deleteById(anyString());
 
     }
 

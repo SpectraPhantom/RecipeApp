@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import reactor.core.publisher.Mono;
 import spring.recipeapp.commands.RecipeCommand;
 import spring.recipeapp.services.IngredientService;
 import spring.recipeapp.services.RecipeService;
@@ -43,7 +44,7 @@ class IngredientControllerTest {
     void listIngredients() throws Exception{
         RecipeCommand recipeCommand=new RecipeCommand();
 
-        when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
+        when(recipeService.findCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
 
         mockMvc.perform(get("/recipe/1/ingredients"))
                 .andExpect(status().isOk())

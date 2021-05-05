@@ -1,10 +1,10 @@
 package spring.recipeapp.services;
 
+import reactor.core.publisher.Flux;
 import spring.recipeapp.commands.UnitOfMeasureCommand;
 
-import java.util.Set;
 
 public interface UnitOfMeasureService {
 
-    Set<UnitOfMeasureCommand> listOfUom();
+    Flux<UnitOfMeasureCommand> listOfUom();
 }

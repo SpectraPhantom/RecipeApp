@@ -1,7 +1,7 @@
 package spring.recipeapp.domain;
 
 import lombok.*;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -10,11 +10,10 @@ import java.util.UUID;
 @Setter
 public class Ingredient {
 
+    @Id
     private String id= UUID.randomUUID().toString();
     private String description;
     private BigDecimal amount;
-
-    @DBRef
     private UnitOfMeasure uom;
 
     public Ingredient() {

@@ -2,6 +2,7 @@ package spring.recipeapp.bootstrap;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -11,6 +12,9 @@ import spring.recipeapp.domain.*;
 import spring.recipeapp.repositories.CategoryRepository;
 import spring.recipeapp.repositories.RecipeRepository;
 import spring.recipeapp.repositories.UnitOfMeasureRepository;
+import spring.recipeapp.repositories.reactive.CategoryReactiveRepository;
+import spring.recipeapp.repositories.reactive.RecipeReactiveRepository;
+import spring.recipeapp.repositories.reactive.UnitOfMeasureReactiveRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
