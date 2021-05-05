@@ -38,11 +38,11 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public Mono<Recipe> findById(String id) {
-        Recipe recipe=recipeReactiveRepository.findById(id).block();
+        Mono<Recipe> recipe=recipeReactiveRepository.findById(id);
         if(recipe==null){
             throw new RuntimeException("Recipe not found!");
         }
-        return Mono.just(recipe);
+        return recipe;
     }
 
     @Override

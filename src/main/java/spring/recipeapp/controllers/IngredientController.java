@@ -3,13 +3,18 @@ package spring.recipeapp.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import spring.recipeapp.commands.IngredientCommand;
 import spring.recipeapp.commands.RecipeCommand;
 import spring.recipeapp.commands.UnitOfMeasureCommand;
 import spring.recipeapp.services.IngredientService;
 import spring.recipeapp.services.RecipeService;
 import spring.recipeapp.services.UnitOfMeasureService;
+
+import javax.validation.Valid;
 
 @Controller
 @Slf4j
@@ -26,9 +31,16 @@ public class IngredientController {
         this.unitOfMeasureService = unitOfMeasureService;
     }
 
+    private WebDataBinder webDataBinder;
+
+    @InitBinder("ingredient")
+    public void initBinder(WebDataBinder webDataBinder) {
+        this.webDataBinder = webDataBinder;
+    }
+
     @GetMapping("/recipe/{recipeId}/ingredients")
     public String listIngredients(@PathVariable String recipeId, Model model) {
-        model.addAttribute("recipe", recipeService.findCommandById(recipeId).block());
+        model.addAttribute("recipe", recipeService.findCommandById(recipeId));
 
         return "/recipe/ingredient/list";
     }
@@ -39,7 +51,7 @@ public class IngredientController {
                                        Model model) {
 
         model.addAttribute("ingredient",
-                ingredientService.findByRecipeIdAndIngredientId(recipeId, id).block());
+                ingredientService.findByRecipeIdAndIngredientId(recipeId, id));
 
         return "recipe/ingredient/show";
 
@@ -49,20 +61,24 @@ public class IngredientController {
     public String updateRecipeIngredient(@PathVariable String recipeId, @PathVariable String id, Model model) {
 
         model.addAttribute("ingredient",
-                ingredientService.findByRecipeIdAndIngredientId(recipeId, id).block());
-
-        model.addAttribute("uomList", unitOfMeasureService.listOfUom().collectList().block());
+                ingredientService.findByRecipeIdAndIngredientId(recipeId, id));
 
         return "recipe/ingredient/ingredientform";
     }
 
     @PostMapping("recipe/{recipeId}/ingredient")
-    public String saveOrUpdate(@ModelAttribute IngredientCommand ingredientCommand) {
+    public String saveOrUpdate(@ModelAttribute("ingredient") IngredientCommand ingredientCommand,
+                               @PathVariable String recipeId, Model model) {
+        webDataBinder.validate();
+        BindingResult result = webDataBinder.getBindingResult();
+        if (result.hasErrors()) {
+            result.getAllErrors().forEach(objectError -> log.debug(objectError.toString()));
+            return "recipe/ingredient/ingredientform";
+        }
+
         IngredientCommand savedCommand = ingredientService.saveIngredientCommand(ingredientCommand).block();
-
         log.debug("Saved ingredient id: " + savedCommand.getId());
-
-        return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" + savedCommand.getId() + "/show";
+        return "redirect:/recipe/" + recipeId + "/ingredient/" + savedCommand.getId() + "/show";
 
     }
 
@@ -76,8 +92,6 @@ public class IngredientController {
 
         ingredientCommand.setUom(new UnitOfMeasureCommand());
 
-        model.addAttribute("uomList", unitOfMeasureService.listOfUom().collectList().block());
-
         return "recipe/ingredient/ingredientform";
     }
 
@@ -86,5 +100,10 @@ public class IngredientController {
         ingredientService.deleteById(recipeId, id).block();
 
         return "redirect:/recipe/{recipeId}/ingredients";
+    }
+
+    @ModelAttribute("uomList")
+    public Flux<UnitOfMeasureCommand> populateUomList() {
+        return unitOfMeasureService.listOfUom();
     }
 }
